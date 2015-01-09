@@ -23,6 +23,7 @@
 	$servers["StormBit"]["autoexec"][0] = "PRIVMSG #stormbitgames :PHPBot Online\r\n";
 	
 	$botport = '22228';
+	$botportpass = 'electr0n'; //very secure :D
 	
 	// Multi-delimiter explode.
 	function explodeX($delimiters,$string) {
@@ -182,15 +183,28 @@
 			}
 		}//end IRC server specific code
 		if (isset($botport)) {
-			consoleout("[Bot Global]","Establishing listen socket for various bot commands.")
 			//actual socket stuff.
-			if(!isset($botportopen)){
+			if(!$botportopen){
+				consoleout("[Bot Global]","Establishing listen socket for various bot commands.")
 				$botportsock = socket_create(AF_INET,SOCK_STREAM,tcp);
+				if (!socket_listen($botportsock)){
+					consoleout("[Bot Global]","ERROR: Bot socket was not bound.");
+				}else{
+					consoleout("[Bot Global]","SUCCESS: Bot socket bound. Make sure you set the password.");
+				}
+				$botportopen=true;
+			}else{
 				
 			}
 		}
 		usleep(1);
 		$iteration=$iteration+1; //halfassed time counter
+		//time-based event firing every 1000 iterations (roughly a second. if you want more precision go find someone else's bot.)
+		if ($iteration % 1000){
+			foreach($modules as &$module){
+				$module->event_fire('time',$iteration/1000);
+			}
+		}
 		$first = false;
 	}
 ?>

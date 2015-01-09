@@ -2,12 +2,12 @@
 //RSS reader system. Outputs new RSS feed updates to a channel
 //NEEDS the PHP DOM module thing loaded.
 
+//this is just the RSS parser function! you don't need this in your module's code!
 //sourced from http://onwebdev.blogspot.com/2011/08/php-converting-rss-to-json.html because I'm lazy
-
-class rssreader {
-	function readRSS($url) {
+class rssreaderasync extends Thread {
+	public function run() {
 		$feed = new DOMDocument();
-		$feed->load('blog-feed.xml');
+		$feed->load($url);
 		$json = array();
 		
 		$json['title'] = $feed->getElementsByTagName('channel')->item(0)->getElementsByTagName('title')->item(0)->firstChild->nodeValue;
@@ -33,16 +33,39 @@ class rssreader {
 			$json['item'][$i++]['guid'] = $guid;	
 			
 		}
-		return $json;
+		//do JSON parsing
+		
 	}
-	
-	function event_fire($type,$message,$server) {
-	//triggered whenever something happens. time-based triggers 'time', IRC-server based triggers 'irc', and the listener socket-based triggers 'listen' will be sent in the first argument
-	//the IRC server output line, the current time in unixtime, or the listen socket's input will be sent as $message.
-	//$server is basically the server-specific array. That's it.
-	
-	
-	}
+}
 
+
+//actual legwork
+class rssreader {
+
+	function readRSS($url) {//because this is clean and totally safe and nice
+		$rssreader = new rssreader($url);
+	}
+	
+	function event_fire($type,$message,$server = NULL) {
+		//triggered whenever something happens. time-based triggers 'time', IRC-server based triggers 'irc', and the listener socket-based triggers 'listen' will be sent in the first argument
+		//the IRC server output line, the current time in unixtime, or the listen socket's input will be sent as $message.
+		//$server is basically the server-specific array and that's only needed with the IRC server trigger.
+		if ($type='irc' && $server != null){
+			//IRC server action. processes things like PRIVMSGs and NOTICEs if you really want them to. All the output gets passed to you. Pingchecks etc are handled with PONGs but are still passed to you.
+			
+		}elseif($type='time'){
+			//once-per-second actions
+			//we'll be doing our own iteration outside this function that checks every 15 minutes for an RSS feed update but that's basically it.
+			if($message%15){
+				
+			}
+		}elseif($type="listen"){
+			//listen socket
+			//check data from the listen socket (authorization'll be handled in the main bot's code) and if it's something that interests us we do things about it.
+		}
+	}
+}
+
+//asyncronousish thread thing
 
 ?>
