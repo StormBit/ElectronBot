@@ -1,10 +1,5 @@
 <?php
 
-//dec 2...2nd? 2014 - all code in order
-//ideas: add a user remover?
-//check users every so often for bad stuff like undernet or failing to connect to the BNC channel
-
-
 	//Eliminated Bug Number 0000000001! Woo!
 	set_time_limit(0);
 

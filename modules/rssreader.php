@@ -2,6 +2,11 @@
 //RSS reader system. Outputs new RSS feed updates to a channel
 //NEEDS the PHP DOM module thing loaded.
 
+rssurls=array();
+$rssurls[0]=""; //might need to add these to get them to work
+
+rssdata=array();
+
 //this is just the RSS parser function! you don't need this in your module's code!
 //sourced from http://onwebdev.blogspot.com/2011/08/php-converting-rss-to-json.html because I'm lazy
 class rssreaderasync extends Thread {
@@ -57,7 +62,13 @@ class rssreader {
 			//once-per-second actions
 			//we'll be doing our own iteration outside this function that checks every 15 minutes for an RSS feed update but that's basically it.
 			if($message%15){
-				
+				//check if there are any leftover threads (HTTP requests hanging would cause those) and kill them.
+				//wip
+			}
+			if($message % 900 ) { //15 minute interval
+				foreach ($rssurls as &$rssurl) {
+					$rssurls
+				}
 			}
 		}elseif($type="listen"){
 			//listen socket
@@ -65,7 +76,4 @@ class rssreader {
 		}
 	}
 }
-
-//asyncronousish thread thing
-
 ?>
