@@ -7,13 +7,13 @@
 	global $servers;
 
 	$servers["StormBit"]["name"] = "StormBit";
-	$servers["StormBit"]["serverip"] = "ssl://irc.stormbit.net";
+	$servers["StormBit"]["serverip"] = "irc.stormbit.net";
 	$servers["StormBit"]["serverport"] = "6697";
 	$servers["StormBit"]["serverpass"] = "";
 	$servers["StormBit"]["botnick"] = "Electron2";
 	$servers["StormBit"]["botuser"] = "Electron2";
-	$servers["StormBit"]["botnspass"] = "Electron2";
-	$servers["StormBit"]["botrealname"] = "Electronasd - the second coming. sounds ominous, huh?";
+	$servers["StormBit"]["botnspass"] = "";
+	$servers["StormBit"]["botrealname"] = "Electron2 - the second coming. sounds ominous, huh?";
 	//fancy
 	$servers["StormBit"]["autoexec"][0] = "PRIVMSG #stormbitgames :PHPBot Online\r\n";
 	
@@ -101,7 +101,13 @@
 	}
 
 	//new modular code. loads all the modules from a folder and stuff
-	
+	function loadPlugins() {
+		foreach (glob("modules/*.php") as $filename) {
+			include_once $filename;
+			$classname = basename($filename,".php");
+			$modules[$classname] = new $classname();
+		}
+	}
 	
 	
 	// Main loop
@@ -173,25 +179,29 @@
 						send($server, "JOIN " . $server_output["data"][2] . "\r\n");
 					}
 				}
-				
+				//send server output to modules
+				foreach ($modules as &$module) {
+					$module->event_fire("irc",$server_output,$server);
+				}
 			$server_output = array(); //clear after each round
 			}
 		}//end IRC server specific code
-		if (isset($botport)) {
-			//actual socket stuff.
-			if(!$botportopen){
-				consoleout("[Bot Global]","Establishing listen socket for various bot commands.")
-				$botportsock = socket_create(AF_INET,SOCK_STREAM,tcp);
-				if (!socket_listen($botportsock)){
-					consoleout("[Bot Global]","ERROR: Bot socket was not bound.");
-				}else{
-					consoleout("[Bot Global]","SUCCESS: Bot socket bound. Make sure you set the password.");
-				}
-				$botportopen=true;
-			}else{
-				
-			}
-		}
+		//if (isset($botport)) {
+		//	//actual socket stuff.
+		//	if(!$botportopen){
+		//		consoleout("[Bot Global]","Establishing listen socket for various bot commands.");
+		//		$botportsock = socket_create(AF_INET,SOCK_STREAM,tcp);
+		//		socket_bind($botportsock);
+		//		if (!socket_listen($botportsock)){
+		//			consoleout("[Bot Global]","ERROR: Bot socket was not bound.");
+		//		}else{
+		//			consoleout("[Bot Global]","SUCCESS: Bot socket bound. Make sure you set the password.");
+		//		}
+		//		$botportopen=true;
+		//	}else{
+		//		
+		//	}
+		//}
 		usleep(1);
 		$iteration=$iteration+1; //halfassed time counter
 		//time-based event firing every 1000 iterations (roughly a second. if you want more precision go find someone else's bot.)
